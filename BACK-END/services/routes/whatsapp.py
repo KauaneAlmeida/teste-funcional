@@ -8,13 +8,13 @@ from fastapi import APIRouter, HTTPException, Request, BackgroundTasks
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
-from app.services.orchestration_service import intelligent_orchestrator
-from app.services.baileys_service import (
+from services.orchestration import intelligent_orchestrator
+from services.baileys_service import (
     send_baileys_message,
     get_baileys_status,
     baileys_service
 )
-from app.services.firebase_service import save_user_session, get_user_session
+from services.firebase_service import save_user_session, get_user_session
 
 # Logging
 logger = logging.getLogger(__name__)

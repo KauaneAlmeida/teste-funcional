@@ -5,16 +5,16 @@ import re
 import asyncio
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
-from app.services.firebase_service import (
+from services.firebase_service import (
     get_user_session,
     save_user_session,
     save_lead_data,
     get_conversation_flow,
     get_firebase_service_status
 )
-from app.services.ai_chain import ai_orchestrator
-from app.services.baileys_service import baileys_service
-from app.services.lawyer_notification_service import lawyer_notification_service
+from services.ai_chain import ai_orchestrator
+from services.baileys_service import baileys_service
+from services.lawyer_notification_service import lawyer_notification_service
 
 logger = logging.getLogger(__name__)
 

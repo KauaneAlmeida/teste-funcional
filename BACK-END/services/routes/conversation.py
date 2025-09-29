@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 
 from app.models.request import ConversationRequest
 from app.models.response import ConversationResponse
-from app.services.orchestration_service import intelligent_orchestrator
+from services.orchestration import intelligent_orchestrator
 
 # Logging
 logger = logging.getLogger(__name__)
