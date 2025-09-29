@@ -32,3 +32,24 @@ class PhoneSubmissionRequest(BaseModel):
                 "session_id": "web_session_123"
             }
         }
+
+class WhatsAppAuthorizationRequest(BaseModel):
+    """Request model for WhatsApp session authorization"""
+    session_id: str = Field(..., description="Unique session ID for WhatsApp")
+    phone_number: str = Field(..., description="WhatsApp phone number")
+    source: str = Field(default="landing_page", description="Source of authorization")
+    user_data: Optional[Dict[str, Any]] = Field(default=None, description="User data from landing page")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "session_id": "whatsapp_session_123",
+                "phone_number": "5511999999999",
+                "source": "landing_chat",
+                "user_data": {
+                    "name": "João Silva",
+                    "email": "joao@email.com",
+                    "problem": "Questão trabalhista"
+                }
+            }
+        }
