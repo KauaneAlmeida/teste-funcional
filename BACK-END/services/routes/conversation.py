@@ -14,8 +14,8 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from app.models.request import ConversationRequest
-from app.models.response import ConversationResponse
+from models.request import ConversationRequest
+from models.response import ConversationResponse
 from services.orchestration import intelligent_orchestrator
 
 # Logging
@@ -53,7 +53,7 @@ async def start_conversation():
             "first_interaction": True
         }
         
-        from app.services.firebase_service import save_user_session
+        from services.firebase_service import save_user_session
         await save_user_session(session_id, session_data)
         
         response_data = ConversationResponse(

@@ -253,14 +253,14 @@ async def whatsapp_webhook(request: Request):
             platform="whatsapp"
         )
         
-        # ✅ EXTRAIR RESPONSE DO ORCHESTRATOR COM VALIDAÇÃO
+        # ✅ EXTRAIR RESPONSE DO ORCHESTRATOR COM VALIDAÇÃO CORRIGIDA
         ai_response = orchestrator_response.get("response", "")
         response_type = orchestrator_response.get("response_type", "orchestrated")
         
-        # ✅ GARANTIR QUE RESPONSE NUNCA ESTÁ VAZIO - CORRIGIDO
+        # ✅ GARANTIR QUE RESPONSE NUNCA ESTÁ VAZIO
         if not ai_response or not isinstance(ai_response, str) or ai_response.strip() == "":
             ai_response = "Obrigado pela sua mensagem! Nossa equipe entrará em contato em breve."
-            logger.warning(f"⚠️ Orchestrator response vazio ou inválido, usando fallback: {ai_response}")
+            logger.warning(f"⚠️ Orchestrator response vazio, usando fallback")
         
         logger.info(f"✅ Response para bot WhatsApp: '{ai_response[:50]}...'")
         

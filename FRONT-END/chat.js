@@ -1,5 +1,5 @@
 /**
- * 🎯 CHAT WIDGET INTEGRADO COM BACKEND
+ * 🎯 CHAT WIDGET INTEGRADO COM BACKEND - VERSÃO CORRIGIDA
  * 
  * Conecta diretamente com o backend Python FastAPI
  * Gerencia fluxo conversacional completo
@@ -43,54 +43,56 @@ class ChatWidget {
     }
 
     createChatInterface() {
+        // Criar launcher button
+        const launcher = document.createElement('div');
+        launcher.className = 'chat-launcher';
+        launcher.innerHTML = `
+            <div class="chat-launcher-text">
+                Fale com nosso assistente e seja direcionado a um advogado em minutos.
+            </div>
+            <div class="chat-launcher-icon">⚖️</div>
+        `;
+        document.body.appendChild(launcher);
+
         // Criar container do chat
-        const chatContainer = document.createElement('div');
-        chatContainer.id = 'chat-widget';
-        chatContainer.className = 'chat-widget';
-        chatContainer.innerHTML = `
-            <div class="chat-header">
-                <div class="chat-header-info">
-                    <div class="chat-avatar">⚖️</div>
-                    <div class="chat-title">
-                        <h4>m.lima Advogados</h4>
-                        <span class="chat-status">Online</span>
+        const chatRoot = document.createElement('div');
+        chatRoot.id = 'chat-root';
+        chatRoot.innerHTML = `
+            <div class="chat-container">
+                <div class="chat-header">
+                    💼 Chat Advocacia — Escritório m.lima
+                    <button class="chat-close-btn">×</button>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
                     </div>
                 </div>
-                <button class="chat-close" id="chat-close">×</button>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages">
-                <div class="message bot-message">
-                    <div class="message-content">
-                        <p>Conectando com nosso sistema...</p>
+                
+                <div class="messages" id="chat-messages">
+                    <div class="message bot">
+                        <div class="bubble">
+                            Conectando com nosso sistema...
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="chat-input-container">
-                <div class="chat-input-wrapper">
+                
+                <div class="input-area">
                     <input type="text" id="chat-input" placeholder="Digite sua mensagem..." disabled>
-                    <button id="chat-send" disabled>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                        </svg>
-                    </button>
+                    <button id="chat-send" disabled>Enviar</button>
                 </div>
             </div>
         `;
-
-        document.body.appendChild(chatContainer);
+        document.body.appendChild(chatRoot);
     }
 
     attachEventListeners() {
         // Botão launcher
-        const launcher = document.getElementById('chat-launcher');
+        const launcher = document.querySelector('.chat-launcher');
         if (launcher) {
             launcher.addEventListener('click', () => this.toggleChat());
         }
 
         // Botão fechar
-        const closeBtn = document.getElementById('chat-close');
+        const closeBtn = document.querySelector('.chat-close-btn');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.closeChat());
         }
@@ -123,11 +125,11 @@ class ChatWidget {
     }
 
     async openChat() {
-        const chatWidget = document.getElementById('chat-widget');
-        const launcher = document.getElementById('chat-launcher');
+        const chatRoot = document.getElementById('chat-root');
+        const launcher = document.querySelector('.chat-launcher');
         
-        if (chatWidget && launcher) {
-            chatWidget.classList.add('open');
+        if (chatRoot && launcher) {
+            chatRoot.classList.add('active');
             launcher.style.display = 'none';
             this.isOpen = true;
 
@@ -139,11 +141,11 @@ class ChatWidget {
     }
 
     closeChat() {
-        const chatWidget = document.getElementById('chat-widget');
-        const launcher = document.getElementById('chat-launcher');
+        const chatRoot = document.getElementById('chat-root');
+        const launcher = document.querySelector('.chat-launcher');
         
-        if (chatWidget && launcher) {
-            chatWidget.classList.remove('open');
+        if (chatRoot && launcher) {
+            chatRoot.classList.remove('active');
             launcher.style.display = 'flex';
             this.isOpen = false;
         }
@@ -198,6 +200,9 @@ class ChatWidget {
         input.value = '';
         this.disableInput();
 
+        // Mostrar indicador de digitação
+        this.showTypingIndicator();
+
         try {
             console.log('📤 Enviando mensagem:', message);
 
@@ -227,8 +232,14 @@ class ChatWidget {
 
             console.log('✅ Resposta recebida | Step:', this.currentStep, '| Completed:', this.flowCompleted);
 
+            // Remover indicador de digitação
+            this.hideTypingIndicator();
+
             // Mostrar resposta do bot
             this.addBotMessage(data.response);
+
+            // Atualizar barra de progresso
+            this.updateProgress();
 
             // Verificar se precisa coletar telefone
             if (this.flowCompleted && !this.phoneCollected) {
@@ -239,6 +250,7 @@ class ChatWidget {
 
         } catch (error) {
             console.error('❌ Erro ao enviar mensagem:', error);
+            this.hideTypingIndicator();
             this.addBotMessage('Desculpe, ocorreu um erro. Tente novamente.');
         } finally {
             this.enableInput();
@@ -249,9 +261,9 @@ class ChatWidget {
         const messagesContainer = document.getElementById('chat-messages');
         
         const phoneDiv = document.createElement('div');
-        phoneDiv.className = 'message bot-message phone-collection';
+        phoneDiv.className = 'message bot phone-collection';
         phoneDiv.innerHTML = `
-            <div class="message-content">
+            <div class="bubble">
                 <p>Para finalizar, preciso do seu WhatsApp com DDD:</p>
                 <div class="phone-input-container">
                     <input type="tel" id="phone-input" placeholder="11999999999" maxlength="11">
@@ -321,6 +333,7 @@ class ChatWidget {
             // Mostrar mensagem de confirmação
             this.addBotMessage(data.message);
             this.phoneCollected = true;
+            this.updateProgress();
 
             console.log('✅ Telefone enviado com sucesso');
 
@@ -334,10 +347,10 @@ class ChatWidget {
         const messagesContainer = document.getElementById('chat-messages');
         
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'message user-message';
+        messageDiv.className = 'message user';
         messageDiv.innerHTML = `
-            <div class="message-content">
-                <p>${this.escapeHtml(message)}</p>
+            <div class="bubble">
+                ${this.escapeHtml(message)}
             </div>
         `;
 
@@ -349,15 +362,52 @@ class ChatWidget {
         const messagesContainer = document.getElementById('chat-messages');
         
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'message bot-message';
+        messageDiv.className = 'message bot';
         messageDiv.innerHTML = `
-            <div class="message-content">
-                <p>${this.formatBotMessage(message)}</p>
+            <div class="bubble">
+                ${this.formatBotMessage(message)}
             </div>
         `;
 
         messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
+    }
+
+    showTypingIndicator() {
+        const messagesContainer = document.getElementById('chat-messages');
+        
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot typing-message';
+        typingDiv.innerHTML = `
+            <div class="typing-indicator">
+                Digitando<span></span><span></span><span></span>
+            </div>
+        `;
+
+        messagesContainer.appendChild(typingDiv);
+        this.scrollToBottom();
+    }
+
+    hideTypingIndicator() {
+        const typingMessage = document.querySelector('.typing-message');
+        if (typingMessage) {
+            typingMessage.remove();
+        }
+    }
+
+    updateProgress() {
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            let progress = 0;
+            
+            if (this.messageCount >= 1) progress = 20;
+            if (this.messageCount >= 2) progress = 40;
+            if (this.messageCount >= 3) progress = 60;
+            if (this.messageCount >= 4) progress = 80;
+            if (this.flowCompleted && this.phoneCollected) progress = 100;
+            
+            progressFill.style.width = `${progress}%`;
+        }
     }
 
     formatBotMessage(message) {
