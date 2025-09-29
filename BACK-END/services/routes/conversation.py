@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 
 from models.request import ConversationRequest
-from models.response import ConversationResponse
+from models.response import ConversationResponse, SessionStatusResponse, ServiceStatusResponse
 from services.orchestration import intelligent_orchestrator
 
 # Logging

@@ -8,45 +8,11 @@ from fastapi import APIRouter, HTTPException, Request, BackgroundTasks
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
+from models.request import WhatsAppAuthorizationRequest
+from models.response import WhatsAppAuthorizationResponse, WhatsAppStatusResponse
 from services.orchestration import intelligent_orchestrator
-from services.baileys_service import (
-    send_baileys_message,
-    get_baileys_status,
-    baileys_service
-)
+from services.baileys_service import send_baileys_message, get_baileys_status, baileys_service
 from services.firebase_service import save_user_session, get_user_session
-
-# Logging
-logger = logging.getLogger(__name__)
-
-# FastAPI router
-router = APIRouter()
-
-# Token de verificação para o webhook do WhatsApp
-VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "s3nh@-webhook-2025-XYz")
-
-# =================== MODELOS DE DADOS ===================
-
-class WhatsAppAuthorizationRequest(BaseModel):
-    """Request model for WhatsApp session authorization"""
-    session_id: str = Field(..., description="Unique session ID for WhatsApp")
-    phone_number: str = Field(..., description="WhatsApp phone number (format: 5511918368812)")
-    source: str = Field(default="landing_page", description="Source of authorization (landing_chat, landing_button)")
-    user_data: Optional[Dict[str, Any]] = Field(default=None, description="User data from landing page chat")
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="Authorization timestamp")
-    user_agent: Optional[str] = Field(default=None, description="User agent for tracking")
-    page_url: Optional[str] = Field(default=None, description="Page URL where authorization was requested")
-
-class WhatsAppAuthorizationResponse(BaseModel):
-    """Response model for WhatsApp authorization"""
-    status: str = Field(..., description="Authorization status (authorized, error)")
-    session_id: str = Field(..., description="Session ID that was authorized")
-    phone_number: str = Field(..., description="Phone number for the session")
-    source: str = Field(..., description="Authorization source")
-    message: str = Field(..., description="Status message")
-    timestamp: str = Field(..., description="Authorization timestamp")
-    expires_in: Optional[int] = Field(default=3600, description="Authorization expiry in seconds")
-    whatsapp_url: str = Field(..., description="WhatsApp deep link URL")
 
 # =================== FUNÇÕES DE VALIDAÇÃO ===================
 
