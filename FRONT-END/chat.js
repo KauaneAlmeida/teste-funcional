@@ -24,15 +24,15 @@ class ChatWidget {
         // Detectar URL do backend baseado no ambiente
         const hostname = window.location.hostname;
         
-        if (hostname.includes('replit') || hostname.includes('repl.co')) {
-            // Ambiente Replit
-            return 'https://law-firm-backend-936902782519-936902782519.us-central1.run.app';
-        } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
             // Desenvolvimento local
             return 'http://localhost:8000';
+        } else if (hostname.includes('replit') || hostname.includes('repl.co')) {
+            // Ambiente Replit - usar URL local do backend
+            return 'http://localhost:8000';
         } else {
-            // Produção - usar a URL do backend configurada
-            return 'https://law-firm-backend-936902782519-936902782519.us-central1.run.app';
+            // Produção ou outros ambientes
+            return 'http://localhost:8000';
         }
     }
 
